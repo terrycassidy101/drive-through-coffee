@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drive-Through Coffee Leinster — Real Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{--bg:#f6f7f4;--ink:#1d2629;--mute:#5d6a6e;--card:#fff;--line:#d9dedb;--indie:#0e7c86;--chain:#c2410c;--walkup:#7c3aed;--lane:#f2c230;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a1c;--ink:#eef1ef;--mute:#9aa8ac;--card:#1d2629;--line:#33413f;--indie:#3cc4cf;--chain:#f08a55;--walkup:#b794f6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141a1c;--ink:#eef1ef;--mute:#9aa8ac;--card:#1d2629;--line:#33413f;--indie:#3cc4cf;--chain:#f08a55;--walkup:#b794f6;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px;padding-bottom:40px}
+h1{font:800 28px/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:8px 0 4px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+button.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:99px;font:inherit;font-size:14px;cursor:pointer}
+button.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--lane);outline-offset:2px}
+button.near{background:var(--lane);border-color:var(--lane);color:#1d2629;font-weight:700}
+.nrow{display:flex;align-items:center;gap:12px;margin:0 0 12px;flex-wrap:wrap}
+.nrow .note{margin:0;flex:1;min-width:180px}
+.note{font-size:12.5px;color:var(--mute);margin:6px 2px 0}
+#map{height:min(60vh,480px);width:100%;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--mute);margin:8px 2px 14px;flex-wrap:wrap}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+li button{width:100%;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;color:inherit;cursor:pointer;display:flex;gap:12px;align-items:center}
+li button[aria-current="true"]{border-color:var(--ink)}
+li b{display:block}
+li span.s{color:var(--mute);font-size:13.5px}
+.sticker{display:inline-block;font-size:11px;font-weight:700;background:var(--walkup);color:#fff;border-radius:6px;padding:2px 7px;margin-left:6px;transform:rotate(-2deg)}
+.empty{color:var(--mute);padding:14px;text-align:center}
+.popname{font:800 15px "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 4px}
+.popmeta{font-size:12.5px;color:#5d6a6e;margin:0 0 6px}
+.popnote{font-size:13px;margin:0 0 8px}
+.popgo{display:inline-block;background:#f2c230;color:#1d2629;font-weight:700;text-decoration:none;padding:6px 12px;border-radius:8px;font-size:13px}
+.leaflet-popup-content-wrapper{border-radius:10px}
+</style>
+</head>
+<body>
+<main>
+<h1>Drive-Through Coffee</h1>
+<p class="sub">Coffee without leaving the car, across Leinster — real street map.</p>
+<div class="bar" id="topbar">
+ <button class="chip near" id="near">Near me</button>
+ <span id="filters" role="group" aria-label="Filter" style="display:contents"></span>
+</div>
+<p class="note" id="nmsg" aria-live="polite" style="min-height:1.2em"></p>
+<div id="areapick"></div>
+<div id="map" role="application" aria-label="Map of drive-through coffee locations in Leinster"></div>
+<div class="legend"><span><i class="dot" style="background:var(--indie)"></i>Independent</span><span><i class="dot" style="background:var(--chain)"></i>Chain</span><span><i class="dot" style="background:var(--walkup)"></i>Walk-up hatch</span><span><i class="dot" style="border:2px dashed var(--mute)"></i>Not yet confirmed</span></div>
+<p class="note" id="ulabel">All places, nearest first once you pick a location.</p>
+<ul id="list" style="margin-top:10px"></ul>
+<p class="note" style="margin-top:18px">Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Pin positions are placeholders pending full address confirmation — see the Notes column in the spreadsheet for details.</p>
+</main>
+<script>
+var S=[
+["Fools and Horses Coffee","Dublin","Walkinstown roundabout","Independent",53.31602,-6.33422,1,"Coffee cargo box on a busy roundabout."],
+["Cob Coffee Company","Dublin","Nutgrove Avenue, Rathfarnham","Independent",53.29016,-6.26731,1,"Next to Mulch Garden Centre. Plenty of parking; drive-through is an option."],
+["Galloping Green (Byrne's)","Dublin","Stillorgan Road, Blackrock","Independent",53.27962,-6.18345,1,"Also a drive-through off-licence."],
+["Morilles, The Yellow House","Dublin","Rathfarnham","Independent",53.2905,-6.3075,1,"Pub car park drive-through."],
+["Morilles, The Ballinteer House","Dublin","Ballinteer","Independent",53.2795,-6.2470,1,"Pub car park drive-through."],
+["Morilles, The Mill House","Dublin","Stillorgan","Independent",53.2890,-6.2050,1,"Pub car park drive-through."],
+["Smack Drive Thru Coffee","Dublin","Sandyford Road, Dundrum","Independent",53.27923,-6.23579,1,"Running 5+ years. Opens 7am."],
+["Aventura","Dublin","Portmarnock / Malahide","Independent",53.4230,-6.1380,0,"Likely drive-through. Needs a check."],
+["Mint Coffee","Dublin","Stradbrook Road, Blackrock","Independent",53.2920,-6.1790,1,"Drive-through station on Stradbrook Road. Cross-confirmed by an independent OSM tag."],
+["The Grounds Coffee","Kildare","Sarsfields GAA, Rickardstown, Newbridge","Independent",53.18802,-6.81037,1,"Club's own post explicitly calls it drive thru/walk in."],
+["Portarlington GAA coffee container","Laois","McCann Park, Canal Road, Portarlington","Independent",53.14889,-7.17807,1,"Council planner's report confirms drive-thru hatch sales. Planning permission refused and under appeal."],
+["Tribe Coffee","Dublin","Round Tower GAA Club, Convent Road, Clondalkin","Independent",53.31814,-6.39567,1,"Coffee pod in club car park, confirmed drive-thru."],
+["Goat's Gruff","Dublin","The Strawberry Hall car park, Strawberry Beds","Independent",53.36241,-6.38572,1,"Described as fully drive through."],
+["Insomnia, Maxol Ballycoolin","Dublin","N2/N3 Link Road, Ballycoolin","Chain",53.40443,-6.35988,1,"Ireland's first Insomnia drive-thru, opened 2018. Pin is the nearest confirmed landmark on the same road; exact forecourt position may be off by a short distance."],
+["The Coffee Kid","Dublin","M Kelly Interiors car park, Sallynoggin Road Lower","Independent",53.27826,-6.13824,0,"Described as park and dash. Drive-through not confirmed."],
+["The Fat Fox","Wicklow","Church Road, Delgany","Independent",53.13265,-6.08964,1,"Drive-thru coffee shop with baked goods."],
+["Bosca at Marcies","Meath","Trim","Independent",53.55561,-6.79137,0,"Horsebox in a pub car park. Drive-through not confirmed."],
+["Starbucks, Naas Retail Park","Kildare","Naas","Chain",53.2100,-6.6600,1,"New drive-thru, due to open."],
+["Costa, Globe Retail Park","Kildare","Naas","Chain",53.2150,-6.6680,0,"Drive-thru lane applied for."],
+["Costa, Portlaoise Retail Park","Laois","Portlaoise","Chain",53.0340,-7.2990,0,"Drive-thru lane approved, not yet built."],
+["Typo Coffee, Maynooth","Kildare","Maynooth GAA (Páirc Mhuire), Moyglare Road","Independent",53.38799,-6.59888,1,"Original branch. Well established drive-thru. Located at the GAA club grounds, not the housing estate."],
+["Typo Coffee, Leixlip","Kildare","Leixlip GAA Club (St. Mary's), Radley Park, Green Lane, W23 A564","Independent",53.365202,-6.498842,1,"Confirmed drive-through by a regular customer."],
+["Typo Coffee, Mullingar","Westmeath","St. Loman's GAA, near Junction 16 N52","Independent",53.5250,-7.3480,1,"Also their roastery base."],
+["Flippers Coffee","Kildare","MU Barnhall RFC, Parsonstown, Leixlip","Independent",53.34935,-6.51491,1,"Walk-up counter, car park right beside it. Confirmed by a regular.","walkup"],
+["McDonald's","Dublin","Grange Road","Chain",53.3957496,-6.1622698,1,"OSM data - Grange Road"],
+["McDonald's","Kildare","Near Celbridge/Maynooth","Chain",53.3817281,-6.5815223,1,"OSM data - confirm exact address"],
+["McDonald's","Dublin","North Dublin city","Chain",53.3953506,-6.1894926,1,"OSM data - confirm exact address"],
+["KFC","Wexford","Wexford town","Chain",52.3243935,-6.4924031,1,"OSM data"],
+["McDonald's","Dublin","South Dublin","Chain",53.3275174,-6.3439429,1,"OSM data - confirm exact address"],
+["Burger King","Dublin","Clontarf/Fairview area","Chain",53.3919189,-6.1930538,1,"OSM data - confirm exact address"],
+["McDonald's","Offaly","Tullamore area","Chain",53.0300443,-7.2942347,1,"OSM data - first Offaly entry"],
+["Wendy's","Offaly","Tullamore Retail Park, Tullamore","Chain",53.2676371,-7.4685078,1,"OSM data"],
+["McDonald's","Offaly","Tullamore area","Chain",53.2733527,-7.485144,1,"OSM data"],
+["McDonald's","Dublin","Swords area","Chain",53.4464486,-6.2230941,1,"OSM data - confirm exact address"],
+["McDonald's","Kilkenny","Kilkenny city area","Chain",52.6585558,-7.2265743,1,"OSM data - first Kilkenny entry"],
+["McDonald's","Dublin","Northwood Avenue, Santry","Chain",53.4041056,-6.2600169,1,"OSM data"],
+["KFC","Dublin","Cornelscourt area","Chain",53.2512105,-6.1850065,1,"OSM data - confirm exact address"],
+["McDonald's","Dublin","Cornelscourt area","Chain",53.2511091,-6.1846555,1,"OSM data - confirm exact address"],
+["McDonald's","Louth","Rathmullan Road, Dundalk","Chain",53.7128749,-6.3531858,1,"OSM data"],
+["McDonald's","Wicklow","Wexford Road, Arklow","Chain",52.7934035,-6.1637668,1,"OSM data"],
+["McDonald's","Dublin","Corballis Road North, Swords","Chain",53.4289894,-6.23589,1,"OSM data"],
+["McDonald's","Wexford","Rosslare Road, Wexford","Chain",52.3041986,-6.4583556,1,"OSM data"],
+["Burger King","Dublin","Ballymount Road Upper","Chain",53.3093312,-6.35301,1,"OSM data"],
+["Burger King","Meath","Ashbourne Retail Park, Ashbourne","Chain",53.5234785,-6.4140794,1,"OSM data"],
+["Caife Dhubh","Kildare","Near Enfield/Kilcock","Independent",53.2882963,-6.7530146,1,"OSM data - new find, confirm exact address"],
+["Burger King","Dublin","Bothar na Life","Chain",53.3541054,-6.4007043,1,"OSM data"],
+["Starbucks","Dublin","Bothar na Life","Chain",53.3543902,-6.4006858,1,"OSM data"],
+["KFC","Dublin","Bothar na Life","Chain",53.354105,-6.4014653,1,"OSM data"],
+["Starbucks","Louth","Dundalk","Chain",53.9986477,-6.4000798,1,"OSM data"],
+["Costa","Meath","Near Navan","Chain",53.6549362,-6.7012156,1,"OSM data - confirm exact address"],
+["Burger King","Wexford","Paul Funge Boulevard, Gorey","Chain",52.6711277,-6.2989974,1,"OSM data"],
+["Burger King","Dublin","North Street, Swords","Chain",53.4622388,-6.2191512,1,"OSM data"],
+["Apache Pizza","Wexford","Whitemill Road, Wexford","Chain",52.3285312,-6.4808458,1,"OSM data"],
+["Burger King","Wicklow","Coynes Cross Services, Greystones","Chain",53.044186,-6.0904053,1,"OSM data"],
+["Supermac's","Offaly","Tullamore area","Chain",53.0145227,-7.3074825,1,"OSM data"],
+["Insomnia","Dublin","Dundrum/Sandyford area","Chain",53.2916611,-6.3267244,1,"OSM data - confirm exact address"],
+["Burger King","Louth","Near Dundalk","Chain",53.9870737,-6.3782265,1,"OSM data - confirm exact address"],
+["McDonald's","Meath","Ashbourne","Chain",53.5102158,-6.3993018,1,"OSM data"],
+["Supermac's","Louth","Near Drogheda","Chain",53.7278819,-6.3895811,1,"OSM data - confirm exact address"],
+["Burger King","Meath","Athboy Road, Navan","Chain",53.6509333,-6.7060063,1,"OSM data"],
+["Braeburn Coffee","Dublin","Naas Road, Rathcoole","Independent",53.2787329,-6.4874875,1,"OSM data - new find"],
+["Xpresso","Kilkenny","Near Kilkenny city","Independent",52.647305,-7.2213991,1,"OSM data - new find, confirm exact address"],
+["KFC","Kilkenny","Kilkenny Retail and Business Park, Kilkenny","Chain",52.6352251,-7.2460382,1,"OSM data"],
+["OUTPOST","Westmeath","Near Mullingar","Independent",53.8189944,-7.0538195,1,"OSM data - new find, confirm exact address"],
+["Supermac's","Wexford","Larkin's Cross, Wexford","Chain",52.339299,-6.564264,1,"OSM data"],
+["Burger King","Kildare","Near Naas/Newbridge","Chain",53.1669906,-6.8164265,1,"OSM data - confirm exact address"],
+["Burger King","Meath","Dunshaughlin","Chain",53.5102421,-6.5582403,1,"OSM data"],
+["Btwenty7","Wexford","New Ross","Independent",52.3890574,-6.9522393,1,"OSM data - new find"]
+].map(function(a,i){return{id:i,name:a[0],county:a[1],area:a[2],type:a[3],lat:a[4],lon:a[5],ok:!!a[6],note:a[7],svc:a[8]||"drive"}});
+
+var AREAS=[["Dublin city",53.3498,-6.2603],["South Dublin",53.2900,-6.2400],["North Dublin",53.4200,-6.2100],["Kildare",53.1590,-6.9090],["Wicklow",53.0000,-6.3300],["Meath",53.6050,-6.6560],["Laois",53.0340,-7.2990],["Offaly",53.2740,-7.4980],["Kilkenny",52.6540,-7.2440],["Wexford",52.3350,-6.4630],["Louth",53.9980,-6.4030],["Westmeath",53.5345,-7.3390]];
+
+var filter="All",sel=null,me=null;
+var FILTERS=["All","Independent","Chain","Walk-up hatch","Confirmed only"];
+function $(id){return document.getElementById(id)}
+function km(a,b){var r=Math.PI/180,x=(b.lat-a.lat)*r,y=(b.lon-a.lon)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(y/2)*Math.sin(y/2);return 12742*Math.asin(Math.sqrt(h))}
+function fmt(d){return d<1?Math.round(d*1000)+" m":d.toFixed(1)+" km"}
+function col(s){return s.svc=="walkup"?"#7c3aed":(s.type=="Chain"?"#c2410c":"#0e7c86")}
+function shown(){var r=S.filter(function(s){if(filter=="All")return true;if(filter=="Confirmed only")return s.ok;if(filter=="Walk-up hatch")return s.svc=="walkup";return s.type==filter&&s.svc!="walkup"});if(me)r.sort(function(a,b){return a.d-b.d});return r}
+
+var map=L.map('map',{scrollWheelZoom:false}).setView([53.15,-6.9],8);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+ maxZoom:19,
+ subdomains:'abcd',
+ attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
+}).addTo(map);
+var markers={}, meMarker=null;
+
+function makeIcon(s,isSel){
+ var c=col(s),r=isSel?12:9;
+ var dash=s.ok?'':'stroke-dasharray="3 2"';
+ var html='<svg width="'+(r*2+4)+'" height="'+(r*2+4)+'" viewBox="0 0 '+(r*2+4)+' '+(r*2+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+(s.ok?c:'#fff')+'" stroke="'+(s.ok?'#fff':c)+'" stroke-width="2.5" '+dash+'/></svg>';
+ return L.divIcon({html:html,className:'',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],popupAnchor:[0,-(r+2)]});
+}
+
+S.forEach(function(s){
+ var m=L.marker([s.lat,s.lon],{icon:makeIcon(s,false)}).addTo(map);
+ var popHtml='<div class="popname">'+s.name+(s.svc=="walkup"?'<span class="sticker">WALK-UP HATCH</span>':'')+'</div>'+
+  '<div class="popmeta">'+s.type+' &middot; '+(s.ok?(s.svc=="walkup"?"Confirmed":"Drive-through confirmed"):"Not yet confirmed")+'</div>'+
+  '<div class="popnote">'+s.area+', Co. '+s.county+'. '+s.note+'</div>'+
+  '<a class="popgo" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+s.lat+','+s.lon+'">Get directions</a>';
+ m.bindPopup(popHtml);
+ m.on('click',function(){sel=s.id;renderList()});
+ markers[s.id]=m;
+});
+
+function chips(el,arr,cur,fn){el.innerHTML="";arr.forEach(function(n){var b=document.createElement("button");b.className="chip";b.textContent=n;b.setAttribute("aria-pressed",n==cur);b.onclick=function(){fn(n)};el.appendChild(b)})}
+
+function refreshMarkers(){
+ var visible={};
+ shown().forEach(function(s){visible[s.id]=true});
+ S.forEach(function(s){
+  var m=markers[s.id];
+  if(visible[s.id]){ if(!map.hasLayer(m)) m.addTo(map); m.setIcon(makeIcon(s,s.id===sel)); }
+  else { if(map.hasLayer(m)) map.removeLayer(m); }
+ });
+}
+
+function renderList(){
+ chips($("filters"),FILTERS,filter,function(n){filter=n;sel=null;refreshMarkers();renderList()});
+ refreshMarkers();
+ var ul=$("list");ul.innerHTML="";var arr=shown();
+ $("ulabel").textContent=me?"Nearest first from your chosen location.":"All places. Tap Near me to sort by distance.";
+ if(!arr.length){ul.innerHTML='<li class="empty">No places match this filter.</li>'}
+ arr.forEach(function(s){var li=document.createElement("li"),bt=document.createElement("button");
+  bt.setAttribute("aria-current",s.id===sel);
+  bt.innerHTML='<i class="dot" style="background:'+col(s)+'"></i><span><b></b><span class="s"></span></span>';
+  var nameEl=bt.querySelector("b");
+  nameEl.textContent=s.name;
+  if(s.svc=="walkup"){var st=document.createElement("span");st.className="sticker";st.textContent="WALK-UP HATCH";nameEl.appendChild(st)}
+  bt.querySelector(".s").textContent=(me?fmt(s.d)+" away. ":"")+s.area+", "+s.county;
+  bt.onclick=function(){
+   sel=s.id;
+   map.setView([s.lat,s.lon],13);
+   markers[s.id].openPopup();
+   refreshMarkers();
+   renderList();
+   window.scrollTo({top:0,behavior:"smooth"});
+  };
+  li.appendChild(bt);ul.appendChild(li)});
+}
+
+$("near").onclick=function(){
+ var n=$("nmsg");
+ if(!navigator.geolocation){n.textContent="Location isn't available in this browser. Pick your area below instead:";showAreas();return}
+ n.textContent="Finding you...";
+ var done=false;
+ var stuck=setTimeout(function(){
+  if(done)return;
+  done=true;
+  n.textContent="This browser didn't respond to the location request (common when opening the file directly rather than from a web address). Pick your area below instead:";
+  showAreas();
+ },6000);
+ navigator.geolocation.getCurrentPosition(function(p){
+  if(done)return;
+  done=true;clearTimeout(stuck);
+  me={lat:p.coords.latitude,lon:p.coords.longitude};
+  S.forEach(function(s){s.d=km(me,s)});
+  sel=null;
+  var c=S.slice().sort(function(a,b){return a.d-b.d})[0];
+  n.textContent="Nearest: "+c.name+", "+fmt(c.d)+" away in a straight line. Your location stays on your phone.";
+  if(meMarker) map.removeLayer(meMarker);
+  meMarker=L.circleMarker([me.lat,me.lon],{radius:8,fillColor:'#f2c230',fillOpacity:1,color:'#1d2629',weight:3}).addTo(map);
+  map.setView([me.lat,me.lon],12);
+  renderList();
+ },function(e){
+  if(done)return;
+  done=true;clearTimeout(stuck);
+  n.textContent="Couldn't use your exact location here. Pick your area below instead:";
+  showAreas();
+ },{timeout:10000});
+};
+function showAreas(){
+ var el=$("areapick");el.innerHTML="";
+ var label=document.createElement("div");label.className="note";label.style.margin="6px 2px";label.textContent="Choose your area:";el.appendChild(label);
+ var row=document.createElement("div");row.className="bar";
+ AREAS.forEach(function(a){var b=document.createElement("button");b.className="chip";b.textContent=a[0];
+  b.onclick=function(){
+   me={lat:a[1],lon:a[2]};
+   S.forEach(function(s){s.d=km(me,s)});
+   sel=null;
+   $("nmsg").textContent="Showing places nearest "+a[0]+".";
+   if(meMarker) map.removeLayer(meMarker);
+   meMarker=L.circleMarker([me.lat,me.lon],{radius:8,fillColor:'#f2c230',fillOpacity:1,color:'#1d2629',weight:3}).addTo(map);
+   map.setView([me.lat,me.lon],11);
+   renderList();
+  };
+  row.appendChild(b)});
+ el.appendChild(row);
+}
+
+renderList();
+</script>
+</body>
+</html>
