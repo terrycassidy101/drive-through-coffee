@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Drive-Through Coffee Leinster — Real Map</title>
+<title>Drive-Through Coffee Ireland — Real Map</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -49,14 +49,14 @@ li span.s{color:var(--mute);font-size:13.5px}
 <body>
 <main>
 <h1>Drive-Through Coffee</h1>
-<p class="sub">Coffee without leaving the car, across Leinster — real street map.</p>
+<p class="sub">Coffee without leaving the car, across Ireland — real street map.</p>
 <div class="bar" id="topbar">
  <button class="chip near" id="near">Near me</button>
  <span id="filters" role="group" aria-label="Filter" style="display:contents"></span>
 </div>
 <p class="note" id="nmsg" aria-live="polite" style="min-height:1.2em"></p>
 <div id="areapick"></div>
-<div id="map" role="application" aria-label="Map of drive-through coffee locations in Leinster"></div>
+<div id="map" role="application" aria-label="Map of drive-through coffee locations in Ireland"></div>
 <div class="legend"><span><i class="dot" style="background:var(--indie)"></i>Independent</span><span><i class="dot" style="background:var(--chain)"></i>Chain</span><span><i class="dot" style="background:var(--walkup)"></i>Walk-up hatch</span><span><i class="dot" style="border:2px dashed var(--mute)"></i>Not yet confirmed</span></div>
 <p class="note" id="ulabel">All places, nearest first once you pick a location.</p>
 <ul id="list" style="margin-top:10px"></ul>
@@ -71,7 +71,7 @@ var S=[
 ["Morilles, The Ballinteer House","Dublin","Ballinteer","Independent",53.2795,-6.2470,1,"Pub car park drive-through."],
 ["Morilles, The Mill House","Dublin","Stillorgan","Independent",53.2890,-6.2050,1,"Pub car park drive-through."],
 ["Smack Drive Thru Coffee","Dublin","Sandyford Road, Dundrum","Independent",53.27923,-6.23579,1,"Running 5+ years. Opens 7am."],
-["Aventura","Dublin","Portmarnock / Malahide","Independent",53.4230,-6.1380,0,"Likely drive-through. Needs a check."],
+["Aventura","Dublin","Portmarnock / Malahide","Independent",53.4230,-6.1380,0,"Likely drive-through. Roundup says two car parks: Paddy's Hill (Malahide) and Portmarnock station. Pin covers one; needs a check."],
 ["Mint Coffee","Dublin","Stradbrook Road, Blackrock","Independent",53.2920,-6.1790,1,"Drive-through station on Stradbrook Road. Cross-confirmed by an independent OSM tag."],
 ["The Grounds Coffee","Kildare","Sarsfields GAA, Rickardstown, Newbridge","Independent",53.18802,-6.81037,1,"Club's own post explicitly calls it drive thru/walk in."],
 ["Portarlington GAA coffee container","Laois","McCann Park, Canal Road, Portarlington","Independent",53.14889,-7.17807,1,"Council planner's report confirms drive-thru hatch sales. Planning permission refused and under appeal."],
@@ -116,6 +116,8 @@ var S=[
 ["Cool Beans","Westmeath","Mullingar","Independent",53.525109,-7.317386,1,"Confirmed proper drive-through by a regular customer."],
 ["Tamp and Grind","Kildare","Clane","Independent",53.296654,-6.680211,1,"Confirmed proper drive-through by a regular customer."],
 ["Starbucks","Dublin","Woodies car park, Ballydowd, Lucan, K78 F3P6","Chain",53.358849,-6.423278,1,"Drive-through lane starts inside the Woodies car park. Enter via the Woodies car park to reach it.","drive","Woodies, Ballydowd, Lucan, K78 F3P6"],
+["Thru The Green","Dublin","Windy Arbour, near Dundrum village","Independent",53.30159,-6.25071,0,"Shipping-container coffee stop, listed as drive-through in a Dublin roundup. Not yet confirmed. Pin is the nearby Luas stop, so only approximate.","drive","Thru The Green coffee, Windy Arbour, Dublin 14"],
+["Grindstone","Dublin","Balally Luas stop","Independent",53.28604,-6.23668,0,"Listed as drive-through in a Dublin roundup. Not yet confirmed. Pin is the Balally Luas stop, so only approximate.","drive","Grindstone coffee, Balally Luas stop, Dublin"],
 ["Burger King","Dublin","Bothar na Life","Chain",53.3541054,-6.4007043,1,"OSM data"],
 ["Starbucks","Dublin","Bothar na Life","Chain",53.3543902,-6.4006858,1,"OSM data"],
 ["KFC","Dublin","Bothar na Life","Chain",53.354105,-6.4014653,1,"OSM data"],
@@ -141,7 +143,7 @@ var S=[
 ["Btwenty7","Wexford","New Ross","Independent",52.3890574,-6.9522393,1,"OSM data - new find"]
 ].map(function(a,i){return{id:i,name:a[0],county:a[1],area:a[2],type:a[3],lat:a[4],lon:a[5],ok:!!a[6],note:a[7],svc:a[8]||"drive",q:a[9]||""}});
 
-var AREAS=[["Dublin city",53.3498,-6.2603],["South Dublin",53.2900,-6.2400],["North Dublin",53.4200,-6.2100],["Kildare",53.1590,-6.9090],["Wicklow",53.0000,-6.3300],["Meath",53.6050,-6.6560],["Laois",53.0340,-7.2990],["Offaly",53.2740,-7.4980],["Kilkenny",52.6540,-7.2440],["Wexford",52.3350,-6.4630],["Louth",53.9980,-6.4030],["Westmeath",53.5345,-7.3390]];
+var AREAS=[["Dublin city",53.3498,-6.2603],["South Dublin",53.2900,-6.2400],["North Dublin",53.4200,-6.2100],["Kildare",53.1590,-6.9090],["Wicklow",53.0000,-6.3300],["Meath",53.6050,-6.6560],["Laois",53.0340,-7.2990],["Offaly",53.2740,-7.4980],["Kilkenny",52.6540,-7.2440],["Wexford",52.3350,-6.4630],["Louth",53.9980,-6.4030],["Westmeath",53.5345,-7.3390],["Longford",53.7276,-7.7993],["Cavan",53.9908,-7.3606],["Monaghan",54.2492,-6.9683],["Leitrim",53.9456,-8.0914],["Galway",53.2707,-9.0568],["Limerick",52.6638,-8.6267],["Cork",51.8985,-8.4756],["Donegal",54.9558,-7.7342],["Belfast",54.5973,-5.9301]];
 
 var filter="All",sel=null,me=null;
 var FILTERS=["All","Independent","Chain","Walk-up hatch","Confirmed only"];
@@ -151,7 +153,7 @@ function fmt(d){return d<1?Math.round(d*1000)+" m":d.toFixed(1)+" km"}
 function col(s){return s.svc=="walkup"?"#7c3aed":(s.type=="Chain"?"#c2410c":"#0e7c86")}
 function shown(){var r=S.filter(function(s){if(filter=="All")return true;if(filter=="Confirmed only")return s.ok;if(filter=="Walk-up hatch")return s.svc=="walkup";return s.type==filter&&s.svc!="walkup"});if(me)r.sort(function(a,b){return a.d-b.d});return r}
 
-var map=L.map('map',{scrollWheelZoom:false}).setView([53.15,-6.9],8);
+var map=L.map('map',{scrollWheelZoom:false}).setView([53.4,-7.9],7);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{
  maxZoom:19,
  attribution:'Tiles &copy; Esri &mdash; Source: Esri, HERE, Garmin, FAO, NOAA, USGS, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
