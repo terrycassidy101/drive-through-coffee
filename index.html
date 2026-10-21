@@ -111,7 +111,7 @@ var S=[
 ["Soul Coffee","Westmeath","Mullingar","Independent",53.543518,-7.338370,1,"Confirmed proper drive-through by a regular customer."],
 ["Cool Beans","Westmeath","Mullingar","Independent",53.525109,-7.317386,1,"Confirmed proper drive-through by a regular customer."],
 ["Tamp and Grind","Kildare","Clane","Independent",53.296654,-6.680211,1,"Confirmed proper drive-through by a regular customer."],
-["Starbucks","Dublin","Woodies car park, Ballydowd, Lucan, K78 F3P6","Chain",53.358812,-6.423187,1,"Drive-through lane starts inside the Woodies car park. Enter via the Woodies car park to reach it."],
+["Starbucks","Dublin","Woodies car park, Ballydowd, Lucan, K78 F3P6","Chain",53.358849,-6.423278,1,"Drive-through lane starts inside the Woodies car park. Enter via the Woodies car park to reach it.","drive","Starbucks Lucan Drive Thru, Lucan Retail Park, Ballydowd Road, Lucan, Co. Dublin"],
 ["Burger King","Dublin","Bothar na Life","Chain",53.3541054,-6.4007043,1,"OSM data"],
 ["Starbucks","Dublin","Bothar na Life","Chain",53.3543902,-6.4006858,1,"OSM data"],
 ["KFC","Dublin","Bothar na Life","Chain",53.354105,-6.4014653,1,"OSM data"],
@@ -135,7 +135,7 @@ var S=[
 ["Burger King","Kildare","Near Naas/Newbridge","Chain",53.1669906,-6.8164265,1,"OSM data - confirm exact address"],
 ["Burger King","Meath","Dunshaughlin","Chain",53.5102421,-6.5582403,1,"OSM data"],
 ["Btwenty7","Wexford","New Ross","Independent",52.3890574,-6.9522393,1,"OSM data - new find"]
-].map(function(a,i){return{id:i,name:a[0],county:a[1],area:a[2],type:a[3],lat:a[4],lon:a[5],ok:!!a[6],note:a[7],svc:a[8]||"drive"}});
+].map(function(a,i){return{id:i,name:a[0],county:a[1],area:a[2],type:a[3],lat:a[4],lon:a[5],ok:!!a[6],note:a[7],svc:a[8]||"drive",q:a[9]||""}});
 
 var AREAS=[["Dublin city",53.3498,-6.2603],["South Dublin",53.2900,-6.2400],["North Dublin",53.4200,-6.2100],["Kildare",53.1590,-6.9090],["Wicklow",53.0000,-6.3300],["Meath",53.6050,-6.6560],["Laois",53.0340,-7.2990],["Offaly",53.2740,-7.4980],["Kilkenny",52.6540,-7.2440],["Wexford",52.3350,-6.4630],["Louth",53.9980,-6.4030],["Westmeath",53.5345,-7.3390]];
 
@@ -166,7 +166,7 @@ S.forEach(function(s){
  var popHtml='<div class="popname">'+s.name+(s.svc=="walkup"?'<span class="sticker">WALK-UP HATCH</span>':'')+'</div>'+
   '<div class="popmeta">'+s.type+' &middot; '+(s.ok?(s.svc=="walkup"?"Confirmed":"Drive-through confirmed"):"Not yet confirmed")+'</div>'+
   '<div class="popnote">'+s.area+', Co. '+s.county+'. '+s.note+'</div>'+
-  '<a class="popgo" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+s.lat+','+s.lon+'">Get directions</a>';
+  '<a class="popgo" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+(s.q?encodeURIComponent(s.q):s.lat+','+s.lon)+'">Get directions</a>';
  m.bindPopup(popHtml);
  m.on('click',function(){sel=s.id;renderList()});
  markers[s.id]=m;
