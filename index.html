@@ -118,6 +118,9 @@ var S=[
 ["Starbucks","Dublin","Woodies car park, Ballydowd, Lucan, K78 F3P6","Chain",53.358849,-6.423278,1,"Drive-through lane starts inside the Woodies car park. Enter via the Woodies car park to reach it.","drive","Woodies, Ballydowd, Lucan, K78 F3P6"],
 ["Thru The Green","Dublin","Windy Arbour, near Dundrum village","Independent",53.30159,-6.25071,0,"Shipping-container coffee stop, listed as drive-through in a Dublin roundup. Not yet confirmed. Pin is the nearby Luas stop, so only approximate.","drive","Thru The Green coffee, Windy Arbour, Dublin 14"],
 ["Grindstone","Dublin","Balally Luas stop","Independent",53.28604,-6.23668,0,"Listed as drive-through in a Dublin roundup. Not yet confirmed. Pin is the Balally Luas stop, so only approximate.","drive","Grindstone coffee, Balally Luas stop, Dublin"],
+["Jimmy's Coffee","Mayo","Dublin Road (former Forkan's Garage), Swinford","Independent",53.94,-8.95,1,"Drive-through barista bar, opened 2022 per local press. Not yet confirmed by you. Pin is approximate (Swinford area).","drive","Jimmy's Coffee drive through, Dublin Road, Swinford, Co. Mayo"],
+["Jimmy's Irish Coffee","Mayo","Ballina town centre","Independent",54.1167,-9.1667,0,"Second Jimmy's, described as a drive-through stop in the town. Exact location unknown, pin is the town centre.","drive","Jimmy's Irish Coffee, Ballina, Co. Mayo"],
+["Costa, Castlebar Retail Park","Mayo","Breaffy Road, Castlebar","Chain",53.84931,-9.27845,0,"Drive-thru lane with canopy and hatch approved, not confirmed built. Pin is the retail park.","drive","Costa Coffee, Castlebar Retail Park, Breaffy Road, Castlebar"],
 ["Burger King","Dublin","Bothar na Life","Chain",53.3541054,-6.4007043,1,"OSM data"],
 ["Starbucks","Dublin","Bothar na Life","Chain",53.3543902,-6.4006858,1,"OSM data"],
 ["KFC","Dublin","Bothar na Life","Chain",53.354105,-6.4014653,1,"OSM data"],
@@ -143,7 +146,7 @@ var S=[
 ["Btwenty7","Wexford","New Ross","Independent",52.3890574,-6.9522393,1,"OSM data - new find"]
 ].map(function(a,i){return{id:i,name:a[0],county:a[1],area:a[2],type:a[3],lat:a[4],lon:a[5],ok:!!a[6],note:a[7],svc:a[8]||"drive",q:a[9]||""}});
 
-var AREAS=[["Dublin city",53.3498,-6.2603],["South Dublin",53.2900,-6.2400],["North Dublin",53.4200,-6.2100],["Kildare",53.1590,-6.9090],["Wicklow",53.0000,-6.3300],["Meath",53.6050,-6.6560],["Laois",53.0340,-7.2990],["Offaly",53.2740,-7.4980],["Kilkenny",52.6540,-7.2440],["Wexford",52.3350,-6.4630],["Louth",53.9980,-6.4030],["Westmeath",53.5345,-7.3390],["Longford",53.7276,-7.7993],["Cavan",53.9908,-7.3606],["Monaghan",54.2492,-6.9683],["Leitrim",53.9456,-8.0914],["Galway",53.2707,-9.0568],["Limerick",52.6638,-8.6267],["Cork",51.8985,-8.4756],["Donegal",54.9558,-7.7342],["Belfast",54.5973,-5.9301]];
+var AREAS=[["Dublin city",53.3498,-6.2603],["South Dublin",53.2900,-6.2400],["North Dublin",53.4200,-6.2100],["Kildare",53.1590,-6.9090],["Wicklow",53.0000,-6.3300],["Meath",53.6050,-6.6560],["Laois",53.0340,-7.2990],["Offaly",53.2740,-7.4980],["Kilkenny",52.6540,-7.2440],["Wexford",52.3350,-6.4630],["Louth",53.9980,-6.4030],["Westmeath",53.5345,-7.3390],["Longford",53.7276,-7.7993],["Cavan",53.9908,-7.3606],["Monaghan",54.2492,-6.9683],["Leitrim",53.9456,-8.0914],["Galway",53.2707,-9.0568],["Limerick",52.6638,-8.6267],["Cork",51.8985,-8.4756],["Donegal",54.9558,-7.7342],["Belfast",54.5973,-5.9301],["Mayo",53.8500,-9.2990]];
 
 var filter="All",sel=null,me=null;
 var FILTERS=["All","Independent","Chain","Walk-up hatch","Confirmed only"];
