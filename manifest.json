@@ -1,6 +1,6 @@
 {
-  "name": "Drive-Through Coffee Leinster",
-  "short_name": "Coffee",
+  "name": "Coffee App Project",
+  "short_name": "Coffee App",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f6f7f4",
